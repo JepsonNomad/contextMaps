@@ -1,0 +1,148 @@
+//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+///////////////////// REGION OF INTEREST /////////////////////
+//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+
+// This ROI is for Yolo county.
+var ROI = ee.FeatureCollection("TIGER/2018/Counties")
+  .filter(ee.Filter.eq("NAME", "Yolo"));
+
+/*
+//// Other potential ROI's to choose from include:
+// A state (BEWARE THE SIZE OF THE ROI)
+var ROI = ee.FeatureCollection("TIGER/2018/States")
+  .filter(ee.Filter.eq("NAME", "Hawaii"));
+// Sierra Nevada ecoregion
+var ROI = ee.FeatureCollection('EPA/Ecoregions/2013/L4')
+  .filter(ee.Filter.eq("us_l3name", "Sierra Nevada"));
+*/
+
+// Choose the mapping space
+Map.centerObject(ROI, 9);
+Map.addLayer(ROI, {}, 'Region of interest');
+
+
+//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+///////////////////// FUNCTION DEFINITION ////////////////////
+//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+// This function masks cloudy pixels.
+// Function to mask clouds using the quality band of Landsat 8.
+var maskClouds = function(image) {
+  var qa = image.select('BQA');
+  /// Check that the cloud bit is off.
+  // See https://www.usgs.gov/land-resources/nli/landsat/landsat-collection-1-level-1-quality-assessment-band
+  var mask = qa.bitwiseAnd(1 << 4).eq(0);
+  return image.updateMask(mask);
+}
+
+
+// This function adds NDWI (water index) band to a Landsat 8 image.
+var addNDWI = function(image) {
+  return image
+    .addBands(image
+      .normalizedDifference(['B3', 'B5'])
+      .rename('NDWI'));
+};
+
+
+
+//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+////////////////////// DATA ACQUISITION //////////////////////
+//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+
+// Load a raw Landsat scene and display it.
+var raw = ee.ImageCollection('LANDSAT/LC08/C01/T1_TOA')
+  .filterDate("2020-01-01", "2020-12-31")
+  .filterBounds(ROI)
+  .map(maskClouds)
+  .map(addNDWI);
+// Print info about the collection to the console
+print("Raw image collection", raw);
+// Add raw ImageCollection to mapping panel
+// Note that plotting an ImageCollection only shows 
+// first layer from Collection in space
+Map.addLayer(raw, 
+             {bands: ['B4', 'B3', 'B2'],
+              min: 0.025,
+              max: 0.25}, 
+             'Raw image collection', 
+             false);
+
+
+
+//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+/////////////////////// DATA WRANGLING ///////////////////////
+//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+
+
+//// Image reduction (temporal)
+//// Calculate median value across time series within ROI
+var medImg = raw.median();
+// Print to console
+print("Median image", medImg);
+// Visualize in mapping panel
+Map.addLayer(medImg, {bands: ['B4', 'B3', 'B2'], min: 0.025, max: 0.25}, 'Median raw image', false);
+
+
+//// Image masking (spatial)
+var medImgClip = medImg.clip(ROI);
+//// Select and visualize water mask
+var ndwi = medImgClip.select("NDWI");
+// Define viz parameters
+var ndwiViz = {min: -1, max: 1, palette: ['00FFFF', '0000FF']};
+// Visualize NDWI
+Map.addLayer(ndwi, ndwiViz, 'NDWI', false);
+// Generate binary water mask image
+var waterMask = ndwi.lte(0);
+print(waterMask);
+
+// Remove areas from RGB image that are "watery"
+var landOnly = medImgClip.updateMask(waterMask);
+Map.addLayer(landOnly, {bands: ['B4', 'B3', 'B2'], min: 0.025, max: 0.25}, 'RGB, Land only', false);
+// Remove areas from NDWI image that are land
+var waterOnly = ndwi.updateMask(ndwi.gte(0));
+Map.addLayer(waterOnly, ndwiViz, 'Water mask', false);
+
+
+
+
+//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+///////////////// FINAL PRODUCT VISUALIZATION ////////////////
+//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+
+// Define visualization parameters
+var RGBviz = {bands: ['B4', 'B3', 'B2'], min: 0.025, max: 0.25};
+
+// Apply visualization parameters to imagery
+var RGB_masked = landOnly.visualize(RGBviz);
+var RGB_roi = medImgClip.visualize(RGBviz);
+Map.addLayer(RGB_roi, {}, 'RGB including water', false);
+
+
+// Export the image, specifying scale and region.
+// NOTE: use as fine as 30m scale for SMALL ROI's
+// BUT DO NOT USE THAT SCALE FOR CA STATE 
+// IT WILL BE TOO MUCH, MAN!
+Export.image.toDrive({
+  image: RGB_roi,
+  description: 'Yolo_LC08_RGB_2020',
+  folder: 'maptime',
+  scale: 90,
+  region: ROI,
+  maxPixels: 1e13});
+
+// Export the polygon
+Export.table.toDrive({
+  collection: ROI,
+  description: 'Yolo_ROI',
+  folder: 'maptime',
+  fileFormat: "SHP"});
