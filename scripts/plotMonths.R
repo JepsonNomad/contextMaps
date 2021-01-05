@@ -50,7 +50,7 @@ plotFunction = function(rasPath,
     scale_fill_identity() +
     geom_sf(data = ROI,
             fill = "transparent",
-            lwd = 0.75,
+            lwd = 0.25,
             col = "grey40") +
     theme_void() +
     theme(panel.background = element_rect(fill = "transparent", 
