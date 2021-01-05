@@ -9,6 +9,8 @@ Once you've got your data, you can use the `scripts/plotMaps.R` script to genera
 <img src="plots/contextPlot.jpg" alt="Map of Yolo County, CA" height="500"/>
 <img src="examples/CA_context.jpg" alt="Map of CA with Sierra Ecoregion" height="500"/>
 
+### Challenge
+
 If you're feeling ambitious, try generating monthly median aggregates in Earth Engine using the code in `scripts/getData_monthlyMed.txt`. You can then use `scripts/plotMonths.R` to iterate the plotting workflow from above across a folder of images. Again, for your convenience, some example data have already been downloaded and can be found in the `data/monthly/` subdirectory. Finally, use `scripts/jpg2gif.py` to combine your 12 monthly aggregates into a gif!
 
 `$ python3 ./scripts/jpg2gif.py ./plots/monthly/`
