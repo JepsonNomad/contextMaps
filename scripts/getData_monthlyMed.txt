@@ -1,0 +1,151 @@
+//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+///////////////////// REGION OF INTEREST /////////////////////
+//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+
+// This ROI is for Yolo county.
+var ROI = ee.FeatureCollection("TIGER/2018/Counties")
+  .filter(ee.Filter.eq("NAME", "Yolo"));
+
+/*
+//// Other potential ROI's to choose from include:
+// A state (BEWARE THE SIZE OF THE ROI)
+var ROI = ee.FeatureCollection("TIGER/2018/States")
+  .filter(ee.Filter.eq("NAME", "Hawaii"));
+// Sierra Nevada ecoregion
+var ROI = ee.FeatureCollection('EPA/Ecoregions/2013/L4')
+  .filter(ee.Filter.eq("us_l3name", "Sierra Nevada"));
+*/
+
+// Choose the mapping space
+Map.centerObject(ROI, 9);
+Map.addLayer(ROI, {}, 'Region of interest');
+
+
+//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+///////////////////// FUNCTION DEFINITION ////////////////////
+//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+// This function masks cloudy pixels.
+// Function to mask clouds using the quality band of Landsat 8.
+var maskClouds = function(image) {
+  var qa = image.select('BQA');
+  /// Check that the cloud bit is off.
+  // See https://www.usgs.gov/land-resources/nli/landsat/landsat-collection-1-level-1-quality-assessment-band
+  var mask = qa.bitwiseAnd(1 << 4).eq(0);
+  return image.updateMask(mask);
+};
+
+
+// This function adds NDWI (water index) band to a Landsat 8 image.
+var addNDWI = function(image) {
+  return image
+    .addBands(image
+      .normalizedDifference(['B3', 'B5'])
+      .rename('NDWI'));
+};
+
+
+// Create clipping function so we're just dealing 
+// with the ROI
+var clipper = function(image){
+  return image.clip(ROI);
+};
+
+// Create a visualization function that returns a 
+// visualized image (input is a raw image)
+var vizzer = function(x){
+  return x.visualize(
+    {bands: ['B4_median', 'B3_median', 'B2_median'], 
+    min: 0.025, 
+    max: 0.25});
+};
+
+
+//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+////////////////////// DATA ACQUISITION //////////////////////
+//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+
+// Load a raw Landsat scene and display it.
+var raw = ee.ImageCollection('LANDSAT/LC08/C01/T1_TOA')
+  .filterDate("2015-01-01", "2020-12-31")
+  .filterBounds(ROI)
+  .map(clipper)
+  .map(maskClouds);
+  
+// Print info about the collection to the console
+print("Raw image collection", raw);
+// Add raw ImageCollection to mapping panel
+// Note that plotting an ImageCollection only shows 
+// first layer from Collection in space
+Map.addLayer(raw, 
+             {bands: ['B4', 'B3', 'B2'],
+              min: 0.025,
+              max: 0.25}, 
+             'Raw image collection', 
+             false);
+
+
+
+//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+/////////////////////// DATA WRANGLING ///////////////////////
+//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+
+//// Generate monthly median aggregates
+// https://gis.stackexchange.com/a/258379/67264
+// First, identify months of interest
+var months = ee.List.sequence(1, 12);
+// Then, for each month, select images from the ImageCollection
+// that were collected during that month, and apply
+// a median Reducer.
+var byMonth = ee.ImageCollection.fromImages(
+      months.map(function (m) {
+        return raw.filter(ee.Filter.calendarRange(m, m, 'month'))
+                    .reduce(ee.Reducer.median())
+                    .set('month', m);
+}));
+
+// Print the aggregated ImageCollection to the console
+print("monthlyAggs", byMonth);
+// Visualize two layers
+Map.addLayer(byMonth.first(), {}, "January", false);  
+Map.addLayer(byMonth.select(4), {}, "April", false);
+
+
+//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+///////////////// FINAL PRODUCT VISUALIZATION ////////////////
+//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+
+
+// Apply visualization function to each Image in the ImageCollection
+var monthVis = byMonth.map(vizzer);
+print("monthVis", monthVis);
+// Add visualized January to the Map
+Map.addLayer(monthVis, {}, "byMonth vis 1");
+
+
+
+//// Export
+// Image export by Rodrigo Principe
+// See https://gis.stackexchange.com/a/248230/67264
+var batch = require('users/fitoprincipe/geetools:batch');
+
+// Export the image, specifying scale and region.
+// Scale = number of meters on each side of pixel
+// NOTE: use as fine as 30m scale for SMALL ROI's
+// BUT DO NOT USE THAT SCALE FOR CA STATE 
+// IT WILL BE TOO MUCH, MAN!
+batch.Download.ImageCollection.toDrive(monthVis,
+                                       'mapTime_monthly',
+                                       {scale: 90,
+                                        region: ROI,
+                                        type: 'float'});
+
