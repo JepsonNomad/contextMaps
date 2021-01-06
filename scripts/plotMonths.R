@@ -12,9 +12,11 @@ library(cowplot)
 #### A function to plot and save an RGB image
 ##  Inputs:
 ##  rasPath = filepath to raster that will be mapped
+##  monthID = integer indicator of month being mapped (1-12)
 ##  vecPath = filepath to vector ROI
 ##  outPath = filepath for map destination. Note that folder must already exist.
 plotFunction = function(rasPath,
+                        monthID,
                         vecPath,
                         outPath){
   #### Import data ----
@@ -40,6 +42,12 @@ plotFunction = function(rasPath,
            Gsc = scales::rescale(G, to = c(0,1), from = c(0,255)),
            Bsc = scales::rescale(B, to = c(0,1), from = c(0,255)))
   
+  ## Generate time bar indicator
+  xtimelen = 0.25*(max(imgFort$x)
+                   - min(imgFort$x))
+  xtimepos = min(imgFort$x) + xtimelen*((monthID-1)/11)
+  ytimetall = 0.015
+  
   
   #### Plots ----
   ## RGB plot
@@ -56,8 +64,29 @@ plotFunction = function(rasPath,
     theme(panel.background = element_rect(fill = "transparent", 
                                           colour = "transparent"),  
           plot.background = element_rect(fill = "transparent", 
-                                         colour = "transparent"))
-  rgbPlot
+                                         colour = "transparent")) +
+    ## Horizontal time bar
+    annotate(geom = "segment",
+             x = min(imgFort$x),
+             xend = (min(imgFort$x) 
+                     + xtimelen),
+             y = min(imgFort$y) + 0.02,
+             yend = min(imgFort$y) + 0.02) +
+    ## Vertical time indicator
+    annotate(geom = "segment",
+             x = xtimepos,
+             xend = xtimepos,
+             y = min(imgFort$y) + 0.02,
+             yend = min(imgFort$y) + ytimetall + 0.02) +
+    annotate(geom = "text",
+             label = "Jan",
+             x = min(imgFort$x),
+             y = min(imgFort$y)) +
+    annotate(geom = "text",
+             label = "Dec",
+             x = min(imgFort$x) + xtimelen,
+             y = min(imgFort$y))
+  # rgbPlot
   
   
   #### Save plots ----
@@ -83,6 +112,9 @@ rasterFPbns = basename(rasterFPlist)
 rasterFPraws = tools::file_path_sans_ext(rasterFPbns)
 
 
+#### monthID
+mymonths = as.integer(rasterFPraws) + 1
+
 #### vecPath
 ## Identify region of interest
 ROI = "data/Yolo_ROI.shp"
@@ -101,6 +133,7 @@ mapOutnames = paste0("plots/monthly/",
 #### Iterate function across parameters ----
 for(i in 1:length(rasterFPlist)){
   plotFunction(rasPath = rasterFPlist[i],
+               monthID = mymonths[i],
                vecPath = ROI,
                outPath = mapOutnames[i])
 }

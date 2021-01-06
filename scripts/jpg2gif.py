@@ -17,7 +17,7 @@ with open('image_list.txt', 'w') as file:
     for item in file_list:
         file.write("%s\n" % item)
 
-os.system('convert -delay 1x4 @image_list.txt {}.gif'.format(gif_name)) # On windows convert is 'magick'
+os.system('convert -delay 1x2 @image_list.txt {}.gif'.format(gif_name)) # On windows convert is 'magick'
 
 
 
