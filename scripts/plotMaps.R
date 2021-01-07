@@ -27,7 +27,11 @@ CA
 #### Data wrangling ----
 ## Raster
 # Convert to data.frame
-imgFortFull = fortify(eeImg, maxpixels = 5e7)
+# Recall that we set maxPixels in the Earth Engine export to 1e8,
+# that's the maximum value you should consider using here as well. 
+# If your image is going to be a half the screen, you can use half
+# the maxpixels. 
+imgFortFull = fortify(eeImg, maxpixels = 1e8)
 imgFort = imgFortFull %>%
   rename("R" = vis.red,
          "G" = vis.green,

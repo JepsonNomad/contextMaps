@@ -128,21 +128,28 @@ var RGB_roi = medImgClip.visualize(RGBviz);
 Map.addLayer(RGB_roi, {}, 'RGB including water', false);
 
 
-// Export the image, specifying scale and region.
-// NOTE: use as fine as 30m scale for SMALL ROI's
+// Export the image, specifying scale and region. Use 
+// as fine as product resolution for scale in SMALL ROI's
 // BUT DO NOT USE THAT SCALE FOR CA STATE 
 // IT WILL BE TOO MUCH, MAN!
+
+// AS LONG AS THIS IS FOR DATA VIZ AND NOT EXTRACTION:
+// Note that because a 4k display is 3840x2160 pixels
+// (which equals 8,294,400 pixels total) there is
+// no reason to set maxPixels on the export > 1e8
 Export.image.toDrive({
   image: RGB_roi,
   description: 'Yolo_LC08_RGB_2020',
-  folder: 'maptime',
+  folder: 'mapTime',
   scale: 90,
   region: ROI,
-  maxPixels: 1e13});
+  maxPixels: 1e8});
 
 // Export the polygon
 Export.table.toDrive({
   collection: ROI,
   description: 'Yolo_ROI',
-  folder: 'maptime',
+  folder: 'mapTime',
   fileFormat: "SHP"});
+
+

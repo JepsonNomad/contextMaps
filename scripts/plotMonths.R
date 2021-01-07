@@ -125,7 +125,7 @@ mapRawnames = str_pad(rasterFPraws,
                       pad = "0",
                       side = "left",
                       width = 2)
-mapOutnames = paste0("plots/monthly/",
+mapOutnames = paste0("plots/yoloMonthly/",
                      mapRawnames,
                      ".jpg")
 

@@ -13,7 +13,7 @@ Once you've got your data, you can use the `scripts/plotMaps.R` script to genera
 
 If you're feeling ambitious, try generating monthly median aggregates in Earth Engine using the code in `scripts/getData_monthlyMed.txt`. You can then use `scripts/plotMonths.R` to iterate the plotting workflow from above across a folder of images. Again, for your convenience, some example data have already been downloaded and can be found in the `data/monthly/` subdirectory. Finally, use `scripts/jpg2gif.py` to combine your 12 monthly aggregates into a gif!
 
-`$ python3 ./scripts/jpg2gif.py ./plots/monthly/`
+`$ python3 ./scripts/jpg2gif.py ./plots/yoloMonthly/`
 
 <img src="plots/monthly/Timelapse.gif" alt="Monthly timelapse of Yolo County" height="500"/>
 
