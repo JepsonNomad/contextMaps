@@ -15,7 +15,7 @@ If you're feeling ambitious, try generating monthly median aggregates in Earth E
 
 `$ python3 ./scripts/jpg2gif.py ./plots/yoloMonthly/`
 
-<img src="plots/monthly/Timelapse.gif" alt="Monthly timelapse of Yolo County" height="500"/>
+<img src="plots/yoloMonthly/Timelapse.gif" alt="Monthly timelapse of Yolo County" height="500"/>
 
 
 
