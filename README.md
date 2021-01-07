@@ -6,8 +6,8 @@ Imagery can be accessed, trimmed to a Region of Interest (ROI), cleaned of poor-
 
 Once you've got your data, you can use the `scripts/plotMaps.R` script to generate minimalist maps that provide context to your audience. Below are two examples: the first is an image of Yolo County, California (the `scripts/` folder includes materials to reproduce exactly this image); the second is an image of California with the Sierra Nevada ecoregion highlighted in light grey (challenge: can you reproduce this image on your own?).
 
-<img src="plots/contextPlot.jpg" alt="Map of Yolo County, CA" height="500"/>
-<img src="examples/CA_context.jpg" alt="Map of CA with Sierra Ecoregion" height="500"/>
+<img src="plots/yoloContext.jpg" alt="Map of Yolo County, CA" height="500"/>
+<img src="plots/caliRGB.jpg" alt="Map of CA with Sierra Ecoregion" height="500"/>
 
 ### Challenge
 
