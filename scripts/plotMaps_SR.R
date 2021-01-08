@@ -1,3 +1,5 @@
+## Curious about TOA vs SR? Check out this post for more:
+# https://gis.stackexchange.com/questions/304180/what-are-the-min-and-max-values-of-map-addlayer-on-google-earth-engine
 
 #### Import packages ----
 library(tidyverse)
@@ -14,7 +16,8 @@ eeImg
 
 ## Vector
 ## Yolo County
-ROI = sf::read_sf("data/Sierra_ROI.shp")
+ROI = sf::read_sf("data/Sierra_ROI.shp") %>%
+  st_union()
 ROI
 
 ## CA State
@@ -54,7 +57,7 @@ vectorPlot = ggplot() +
                                         colour = "transparent"),  
         plot.background = element_rect(fill = "transparent", 
                                        colour = "transparent"))
-vectorPlot
+# vectorPlot
 
 
 ## RGB plot
@@ -65,14 +68,14 @@ rgbPlot = ggplot() +
   scale_fill_identity() +
   geom_sf(data = ROI,
           fill = "transparent",
-          lwd = 1.5,
+          lwd = 0.75,
           col = "grey40") +
   theme_void() +
   theme(panel.background = element_rect(fill = "transparent", 
                                         colour = "transparent"),  
         plot.background = element_rect(fill = "transparent", 
                                        colour = "transparent"))
-rgbPlot
+# rgbPlot
 
 
 
@@ -83,7 +86,7 @@ completePlot = ggdraw() +
   draw_plot(vectorPlot, 
             x = 0.075, y = 0.075, 
             width = 0.4, height = 0.5)
-completePlot
+# completePlot
 
 
 

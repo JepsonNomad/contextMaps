@@ -6,16 +6,16 @@ Imagery can be accessed, trimmed to a Region of Interest (ROI), cleaned of poor-
 
 Once you've got your data, you can use the `scripts/plotMaps.R` script to generate minimalist maps that provide context to your audience. Below are two examples: the first is an image of Yolo County, California (the `scripts/` folder includes materials to reproduce exactly this image); the second is an image of California with the Sierra Nevada ecoregion highlighted in light grey (challenge: can you reproduce this image on your own?).
 
-<img src="plots/yoloContext.jpg" alt="Map of Yolo County, CA" height="500"/>
-<img src="plots/caliRGB.jpg" alt="Map of CA with Sierra Ecoregion" height="500"/>
+<img src="plots/yoloContext_SR.jpg" alt="Map of Yolo County, CA" height="500"/>
+<img src="plots/caliRGB_SR.jpg" alt="Map of CA with Sierra Ecoregion" height="500"/>
 
 ### Challenge
 
 If you're feeling ambitious, try generating monthly median aggregates in Earth Engine using the code in `scripts/getData_monthlyMed.txt`. You can then use `scripts/plotMonths.R` to iterate the plotting workflow from above across a folder of images. Again, for your convenience, some example data have already been downloaded and can be found in the `data/monthly/` subdirectory. Finally, use `scripts/jpg2gif.py` to combine your 12 monthly aggregates into a gif!
 
-`$ python3 ./scripts/jpg2gif.py ./plots/yoloMonthly/`
+`$ python3 ./scripts/jpg2gif.py ./plots/yoloMonthly_SR/`
 
-<img src="plots/yoloMonthly/Timelapse.gif" alt="Monthly timelapse of Yolo County" height="500"/>
+<img src="plots/yoloMonthly_SR/Timelapse.gif" alt="Monthly timelapse of Yolo County" height="500"/>
 
 
 

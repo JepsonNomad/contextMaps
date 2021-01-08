@@ -31,7 +31,7 @@ plotFunction = function(rasPath,
   # Convert to data.frame. There is really no reason to go higher than 10 million pixels
   # if you're using the maps for a presentation (4k screen = 3840*2170 = 8.3e7 pixels).
   # Consider the output dimensions: (3in*300ppi)^2 = 4.4e7 pixels
-  imgFortFull = fortify(eeImg, maxpixels = 8e5)
+  imgFortFull = fortify(eeImg, maxpixels = 1e8)
   # Remove useless pixels and scale to (0,1)
   imgFort = imgFortFull %>%
     rename("R" = vis.red,
@@ -106,7 +106,7 @@ plotFunction = function(rasPath,
 
 #### rasPath
 ## Identify input filepaths
-rasterFPlist = list.files(path = "data/monthly_TOA",
+rasterFPlist = list.files(path = "data/monthly_SR",
                           full.names = TRUE)
 rasterFPbns = basename(rasterFPlist)
 rasterFPraws = tools::file_path_sans_ext(rasterFPbns)
@@ -125,7 +125,7 @@ mapRawnames = str_pad(rasterFPraws,
                       pad = "0",
                       side = "left",
                       width = 2)
-mapOutnames = paste0("plots/yoloMonthly_TOA/",
+mapOutnames = paste0("plots/yoloMonthly_SR/",
                      mapRawnames,
                      ".jpg")
 
