@@ -11,12 +11,12 @@ library(cowplot)
 
 #### Import data ----
 ## Raster
-eeImg = raster::stack("data/Sierra_LC08_RGB_2020_SR.tif")
+eeImg = raster::stack("data/Yolo_LC08_RGB_2020_SR.tif")
 eeImg
 
 ## Vector
 ## Yolo County
-ROI = sf::read_sf("data/Sierra_ROI.shp") %>%
+ROI = sf::read_sf("data/Yolo_ROI.shp") %>%
   st_union()
 ROI
 
@@ -95,9 +95,9 @@ completePlot = ggdraw() +
 # A 4k display is 3840 x 2160 pixels. Therefore there's really no need to have presentation images be >3840 horizontal pixels or >2160 vertical pixels
 # Let's do some math. If a figure is to take up half of a ppt slide, then we can happily take it to 1920 horizontal pixels. If that's the case, we can make final image dimensions 7x7 inches, with a resolution of 300 pixels per inch ("dpi") and lose no more information than we would from 4k viewing anyway (final dimensions 2100 x 2100 pixels).
 
-ggsave(filename = "plots/sierraRGB_SR.jpg",
+ggsave(filename = "plots/yoloRGB_SR.jpg",
        rgbPlot, bg = "transparent",
        height = 7, width = 7, units = "in", dpi = 300)
-ggsave(filename = "plots/sierraContext_SR.jpg",
+ggsave(filename = "plots/yoloContext_SR.jpg",
        completePlot, bg = "transparent",
        height = 7, width = 7, units = "in", dpi = 300)

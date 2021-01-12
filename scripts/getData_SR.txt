@@ -69,8 +69,8 @@ print("Raw image collection", raw);
 // first layer from Collection in space
 Map.addLayer(raw, 
              {bands: ['B4', 'B3', 'B2'],
-              min: 0.025,
-              max: 0.25}, 
+              min: 0,
+              max: 2000}, 
              'Raw image collection', 
              false);
 
@@ -89,7 +89,7 @@ var medImg = raw.median();
 // Print to console
 print("Median image", medImg);
 // Visualize in mapping panel
-Map.addLayer(medImg, {bands: ['B4', 'B3', 'B2'], min: 0.025, max: 0.25}, 'Median raw image', false);
+Map.addLayer(medImg, {bands: ['B4', 'B3', 'B2'], min: 0, max: 2000}, 'Median raw image', false);
 
 
 //// Image masking (spatial)
